@@ -142,6 +142,27 @@ int main() {
     const std::string cheats = Read(path);
     assert(cheats.find("cheat_double_jumps=1\n") != std::string::npos);
     assert(cheats.find("cheat_very_hard=1\n") != std::string::npos);
+    // spartanport: the mouse keys (an empty value: mouse_lock on, show_cursor off).
+    {
+        std::ofstream out(path);
+        out << "mouse_lock=0\nshow_cursor=\n";
+    }
+    v.show_cursor = true;
+    SpartanSettings::Load();
+    assert(!v.mouse_lock && !v.show_cursor);
+    {
+        std::ofstream out(path);
+        out << "mouse_lock=\nshow_cursor=1\n";
+    }
+    SpartanSettings::Load();
+    assert(v.mouse_lock && v.show_cursor);
+    SpartanSettings::Save();
+    const std::string mouse = Read(path);
+    assert(mouse.find("show_cursor=1\n") != std::string::npos && mouse.find("mouse_lock=1\n") != std::string::npos);
+    _putenv_s("SPARTAN_SHOW_CURSOR", "0");  // the environment wins at start
+    SpartanSettings::Load();
+    assert(!v.show_cursor);
+    _putenv_s("SPARTAN_SHOW_CURSOR", "");
     std::remove(path);
     std::puts("PASS: graphics settings");
 }

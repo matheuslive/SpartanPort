@@ -400,7 +400,7 @@ INI_DEFAULTS = {'upscaler': 'fsr3', 'preset': '1',
                 'render_resolution': 'native', 'engine_fps': '120',
                 'frames_queued': '1', 'cheat_very_hard': '0', 'cheat_double_jumps': '0',
                 'anisotropy': '0', 'vibration': '100', 'mouse_prompt_distance': '48', 'mouse_lock': '1',
-                'mouse_aim_style': '0', 'mouse_aim_sensitivity': '100'}
+                'show_cursor': '0', 'mouse_aim_style': '0', 'mouse_aim_sensitivity': '100'}
 DISPLAY_MODES = [('windowed', ('Windowed',)), ('borderless', ('Borderless',)), ('fullscreen', ('Fullscreen',))]
 ANISOTROPY = [('0', ('Game default',)), ('2', ('2x',)), ('4', ('4x',)), ('8', ('8x',)), ('16', ('16x',))]
 FPS_LIMITS = [('30', ('30',)), ('60', ('60',)), ('100', ('100',)), ('120', ('120',)), ('144', ('144',)), ('180', ('180',)), ('240', ('240',)), ('0', ('Unlimited',))]
@@ -2184,6 +2184,10 @@ class Launcher:
         self.check(f, 'mouse_lock', 'ini', _('Keep the mouse in the game window'),
                    _('While you play, the mouse stays in the game window, so a click cannot land on another monitor '
                      'or app. The in-game menu and switching windows get it back. Also in the in-game menu.'))
+        self.check(f, 'show_cursor', 'ini', _('Show the mouse cursor'),
+                   _('The system cursor stays visible while you play. With the mouse kept in the game window it '
+                     "stops at the window's edges, and so does aiming with the mouse while L2 is held. Also in the "
+                     'in-game menu.'))
 
         # Gamepad: the controller type names its buttons, then the vibration and the table.
         f = self.pad_section = ttk.Frame(page)

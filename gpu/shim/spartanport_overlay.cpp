@@ -349,6 +349,9 @@ void GameTab() {
                   "L2 aim with the mouse: lower needs more mouse movement for the same stick, higher less.");
         CheckRow("Keep mouse in window", s.mouse_lock,
                  "While you play, the mouse stays in the game window; this menu and other windows get it back.");
+        CheckRow("Show mouse cursor", s.show_cursor,
+                 "The system cursor stays visible while you play. With Keep mouse in window on, it stops at "
+                 "the window's edges, and so does the L2 aim with the mouse.");
         ImGui::EndTable();
     }
 
@@ -1218,6 +1221,10 @@ bool Visible() {
 
 bool CapturesInput() {
     return menu_open || text_entry_active || choice_active;
+}
+
+bool MenuOpen() {
+    return menu_open;
 }
 
 void BeginChoice(const std::string& title, const std::vector<std::string>& items,

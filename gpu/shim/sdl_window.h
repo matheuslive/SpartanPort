@@ -46,6 +46,7 @@ private:
     bool text_requested{}, text_active{};
     int display_mode = -1; ///< applied SpartanSettings display mode (window thread)
     bool mouse_locked = false; ///< relative mouse mode on (window thread)
+    bool mouse_grabbed = false; ///< pointer confined to the window, cursor visible (window thread)
     bool cursor_shown = false; ///< the system cursor is visible (window thread)
     void ApplyDisplayMode(int mode);
     int text_state{};

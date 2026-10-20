@@ -81,6 +81,9 @@ struct Values {
     std::atomic<int> mouse_prompt_distance{48};
     /// Keep the mouse in the game window while the game has it (window.cpp). Live.
     std::atomic<bool> mouse_lock{true};
+    /// The system cursor stays visible while playing; with mouse_lock it is confined to the window
+    /// instead of relative mode (window.cpp). Live.
+    std::atomic<bool> show_cursor{false};
     /// L2 aim with the mouse (runtime_pad.c): 0 relative (follows movement), 1 absolute. Live.
     std::atomic<int> mouse_aim_style{0};
     /// L2 aim sensitivity in percent, 10 to 200: lower needs more mouse for the same stick. Live.

@@ -9,6 +9,7 @@
 #include "sdl_window.h"
 #include "spartanport_overlay.h"
 #include "spartanport_graphics.h"
+#include "spartanport_mouse_mode.h"
 #include "spartanport_settings.h"
 
 namespace Frontend {
@@ -213,15 +214,29 @@ bool WindowSDL::PollEvents() {
     // spartanport: while the game has the mouse it stays in the window (relative mode: hidden, no edges,
     // so a click cannot land on another monitor); the menu, the save list, a text dialog,
     // another window or the game's pause menu (the pause key) get it back. Taken back, it starts
-    // at the window's centre; let go by the pause key, the system cursor shows.
-    const bool paused = mouse_paused.load(std::memory_order_relaxed);
-    const bool lock = SpartanSettings::Get().mouse_lock.load(std::memory_order_relaxed) && !text_active && !paused &&
-                      !SpartanOverlay::CapturesInput() && (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS);
-    if (lock != mouse_locked) {
-        if (lock) SDL_WarpMouseInWindow(window, width / 2.0f, height / 2.0f);
-        if (SDL_SetWindowRelativeMouseMode(window, lock)) mouse_locked = lock;
+    // at the window's centre; let go by the pause key, the system cursor shows. With "Show mouse
+    // cursor" on, the visible pointer is confined to the window instead (spartanport_mouse_mode.h).
+    const auto& settings = SpartanSettings::Get();
+    const SpartanMouse::Mode mode = SpartanMouse::Decide({
+        .show_cursor = settings.show_cursor.load(std::memory_order_relaxed),
+        .keep_in_window = settings.mouse_lock.load(std::memory_order_relaxed),
+        .paused = mouse_paused.load(std::memory_order_relaxed),
+        .released = text_active || SpartanOverlay::CapturesInput(),
+        .menu_open = SpartanOverlay::MenuOpen(),
+        .focused = (SDL_GetWindowFlags(window) & SDL_WINDOW_INPUT_FOCUS) != 0,
+    });
+    // One way of holding the mouse is let go before the other one takes it.
+    if (!mode.grab && mouse_grabbed && SDL_SetWindowMouseGrab(window, false)) {
+        mouse_grabbed = false;
     }
-    if (const bool show = paused && !mouse_locked; show != cursor_shown) {
+    if (mode.relative != mouse_locked) {
+        if (mode.relative) SDL_WarpMouseInWindow(window, width / 2.0f, height / 2.0f);
+        if (SDL_SetWindowRelativeMouseMode(window, mode.relative)) mouse_locked = mode.relative;
+    }
+    if (mode.grab && !mouse_grabbed && SDL_SetWindowMouseGrab(window, true)) {
+        mouse_grabbed = true;
+    }
+    if (const bool show = mode.cursor && !mouse_locked; show != cursor_shown) {
         show ? SDL_ShowCursor() : SDL_HideCursor();
         cursor_shown = show;
     }

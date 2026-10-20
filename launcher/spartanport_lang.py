@@ -966,6 +966,9 @@ EXTRA = {
             'Como os eventos de girar o analógico são respondidos. Teclado: digite o giro, meias-voltas a partir de cima D S A (horário) ou A S D, a partir de baixo A W D ou D W A, voltas completas D S A W ou A S D W; uma tecla fora de ordem recomeça. Mouse adaptativo: desenhe o giro com o mouse.',
         'Joystick prompts': 'Prompts do analógico',
         'Keep the mouse in the game window': 'Manter o mouse na janela do jogo',
+        'Show the mouse cursor': 'Mostrar o cursor do mouse',
+        "The system cursor stays visible while you play. With the mouse kept in the game window it stops at the window's edges, and so does aiming with the mouse while L2 is held. Also in the in-game menu.":
+            'O cursor do sistema fica visível enquanto você joga. Com o mouse mantido na janela do jogo, ele para nas bordas da janela, e a mira com o mouse segurando L2 também. Também no menu do jogo.',
         'Key not supported': 'Tecla não suportada',
         'Keyboard & Mouse Mapping': 'Mapeamento de teclado e mouse',
         'Keyboard and mouse, button icons and gamepad mapping.':
@@ -1233,6 +1236,9 @@ EXTRA = {
             'Cómo se responden los eventos de girar el stick. Teclado: escribe el giro, medias vueltas desde arriba D S A (horario) o A S D, desde abajo A W D o D W A, vueltas completas D S A W o A S D W; una tecla fuera de orden vuelve a empezar. Ratón adaptativo: dibuja el giro con el ratón.',
         'Joystick prompts': 'Eventos del stick',
         'Keep the mouse in the game window': 'Mantener el ratón en la ventana del juego',
+        'Show the mouse cursor': 'Mostrar el cursor del ratón',
+        "The system cursor stays visible while you play. With the mouse kept in the game window it stops at the window's edges, and so does aiming with the mouse while L2 is held. Also in the in-game menu.":
+            'El cursor del sistema sigue visible mientras juegas. Con el ratón mantenido en la ventana del juego, se detiene en los bordes de la ventana, y la puntería con el ratón manteniendo L2 también. También en el menú del juego.',
         'Key not supported': 'Tecla no compatible',
         'Keyboard & Mouse Mapping': 'Asignación de teclado y ratón',
         'Keyboard and mouse, button icons and gamepad mapping.':
