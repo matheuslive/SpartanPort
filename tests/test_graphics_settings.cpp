@@ -10,6 +10,13 @@
 
 namespace G = SpartanGraphics;
 
+#ifndef _WIN32
+// spartanport: the MSVC call the test uses, on Linux (an empty value removes the variable there too).
+static int _putenv_s(const char* name, const char* value) {
+    return value[0] ? setenv(name, value, 1) : unsetenv(name);
+}
+#endif
+
 static std::string Read(const char* path) {
     std::ifstream in(path);
     std::stringstream s;
