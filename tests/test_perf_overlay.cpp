@@ -10,6 +10,13 @@
 
 namespace P = SpartanPerfStats;
 
+#ifndef _WIN32
+// spartanport: the MSVC call the test uses, on Linux (an empty value removes the variable there too).
+static int _putenv_s(const char* name, const char* value) {
+    return value[0] ? setenv(name, value, 1) : unsetenv(name);
+}
+#endif
+
 static std::string Read(const char* path) {
     std::ifstream in(path);
     std::stringstream s;
@@ -22,6 +29,10 @@ int main() {
     assert(P::CpuPercent(400, 100, 8) == 50.0f);
     assert(P::CpuPercent(5000, 100, 4) == 100.0f);
     assert(P::CpuPercent(10, 0, 4) < 0.0f && P::CpuPercent(10, 100, 0) < 0.0f);
+    // Linux sources: the PCI address sysfs and NVML use, and the resident pages of /proc/self/statm.
+    assert(P::PciBusId(0, 1, 0, 0) == "0000:01:00.0" && P::PciBusId(0x10, 0xc3, 0x1f, 7) == "0010:c3:1f.7");
+    assert(P::StatmResidentBytes("524288 2048 512 10 0 4096 0\n", 4096) == 2048.0 * 4096.0);
+    assert(P::StatmResidentBytes("", 4096) < 0.0 && P::StatmResidentBytes("1 2", 0) < 0.0);
 
     P::Sample s;
     s.fps = 238.4f;

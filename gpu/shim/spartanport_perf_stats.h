@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // spartanport: numbers for the performance overlay (spartanport_overlay.cpp). A thread started once samples
-// CPU, RAM, GPU use (Windows counters) and VRAM (VK_EXT_memory_budget) twice a second;
-// a value that cannot be measured stays negative and shows as "n/a".
+// CPU, RAM, GPU use and VRAM (VK_EXT_memory_budget) twice a second; a value that cannot be measured
+// stays negative and shows as "n/a". Windows: process times, working set and the "GPU Engine" counters
+// (this process). Linux: process CPU clock, /proc/self/statm and the GPU's own driver, found by its
+// PCI address (VK_EXT_pci_bus_info): NVML on NVIDIA, amdgpu's gpu_busy_percent on AMD (the whole GPU).
 
 #pragma once
 
@@ -43,6 +45,22 @@ inline float CpuPercent(uint64_t process_delta, uint64_t wall_delta, unsigned co
         return -1.0f;
     }
     return std::clamp(float(double(process_delta) * 100.0 / (double(wall_delta) * cores)), 0.0f, 100.0f);
+}
+
+/// The PCI address as Linux names it (sysfs, NVML): "0000:01:00.0".
+inline std::string PciBusId(uint32_t domain, uint32_t bus, uint32_t device, uint32_t function) {
+    char id[32];
+    std::snprintf(id, sizeof(id), "%04x:%02x:%02x.%x", domain, bus, device, function);
+    return id;
+}
+
+/// Resident bytes from the text of /proc/self/statm (size, then resident, in pages); -1 if unreadable.
+inline double StatmResidentBytes(const char* text, long page_size) {
+    unsigned long long size = 0, resident = 0;
+    if (!text || page_size <= 0 || std::sscanf(text, "%llu %llu", &size, &resident) != 2) {
+        return -1.0;
+    }
+    return double(resident) * double(page_size);
 }
 
 /// The overlay text for the items in `mask`: one line each, or one line when `row`.
