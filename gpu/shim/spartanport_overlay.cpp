@@ -19,6 +19,7 @@
 #include "spartanport_graphics.h"
 #include "spartanport_perf_stats.h"
 #include "spartanport_menu_combo.h"
+#include "spartanport_ui_scale.h"
 #include "../../src/actor_hook.h"
 
 extern SpartanActorSlot spartanport_actor_slots[2];
@@ -94,12 +95,27 @@ float base_scale = 1.0f;
 std::chrono::steady_clock::time_point last_present{};
 float frame_ms_avg = 0.0f;
 
+float PixelDensity(SDL_WindowID id) {
+    SDL_Window* window = SDL_GetWindowFromID(id);
+    const float density = window ? SDL_GetWindowPixelDensity(window) : 1.0f;
+    return density > 0.0f ? density : 1.0f;
+}
+
 void SetOpen(bool value) {
     if (menu_open.exchange(value) == value) {
         return;
     }
-    ImGui::GetIO().MouseDrawCursor = value;
+    ImGuiIO& io = ImGui::GetIO();
+    io.MouseDrawCursor = value;
     if (value) {
+        // The menu draws its cursor where the mouse is now: motion only reaches ImGui while it is
+        // open, so the last position (none on the first opening) would hide it until a move.
+        float x = 0.0f, y = 0.0f;
+        SDL_GetMouseState(&x, &y);
+        if (SDL_Window* window = SDL_GetMouseFocus()) {
+            const float density = PixelDensity(SDL_GetWindowID(window));
+            io.AddMousePosEvent(x * density, y * density);
+        }
         requested_tab = SpartanSettings::Get().menu_tab;
     }
     if (!value && dirty) {
@@ -153,12 +169,6 @@ ImGuiKey KeyFromGamepad(u8 button) {
     case SDL_GAMEPAD_BUTTON_BACK: return ImGuiKey_GamepadBack;
     default: return ImGuiKey_None;
     }
-}
-
-float PixelDensity(SDL_WindowID id) {
-    SDL_Window* window = SDL_GetWindowFromID(id);
-    const float density = window ? SDL_GetWindowPixelDensity(window) : 1.0f;
-    return density > 0.0f ? density : 1.0f;
 }
 
 // Marks the settings dirty when a widget changed them.
@@ -1296,14 +1306,7 @@ void Render(vk::CommandBuffer cmdbuf, vk::ImageView view, vk::Extent2D extent) {
     ImGuiIO& io = ImGui::GetIO();
     io.DisplaySize = ImVec2(float(extent.width), float(extent.height));
     io.DeltaTime = ms > 0.0f && ms < 1000.0f ? ms / 1000.0f : 1.0f / 60.0f;
-    // UI scale follows the display height (1080p = 1).
-    const float scale = std::max(float(extent.height) / 1080.0f, 0.75f);
-    if (std::abs(scale - base_scale) > 0.01f) {
-        ImGuiStyle& style = ImGui::GetStyle();
-        style.ScaleAllSizes(scale / base_scale);
-        style.FontScaleMain = scale;
-        base_scale = scale;
-    }
+    SpartanUiScale::Apply(ImGui::GetStyle(), base_scale, SpartanUiScale::ForHeight(float(extent.height)));
 
     UpdateChoiceTextures();
     ImGui_ImplVulkan_NewFrame();
