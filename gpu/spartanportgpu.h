@@ -50,6 +50,9 @@ void spartanportgpu_mouse_pause_key(void);
 int spartanportgpu_mouse_aim_style(void);
 /* L2 aim sensitivity in percent (10 to 200), set in the menu. */
 int spartanportgpu_mouse_aim_sensitivity(void);
+/* The gamepad shortcut of the in-game menu, set in the menu: 0 R3+L2, 1 Select+Start, 2 either
+ * (spartanport_menu_combo.h). */
+int spartanportgpu_menu_combo(void);
 /* Number of symbols registered by the vendored libraries (diagnostics). */
 unsigned spartanportgpu_symbol_count(void);
 /* Yields of threads waiting for guest memory copies (CPU report, #209). */

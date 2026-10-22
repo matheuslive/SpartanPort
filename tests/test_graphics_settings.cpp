@@ -170,6 +170,28 @@ int main() {
     SpartanSettings::Load();
     assert(!v.show_cursor);
     _putenv_s("SPARTAN_SHOW_CURSOR", "");
+    // spartanport: the menu's gamepad shortcut, saved by name (R3+L2 for an unknown one).
+    {
+        std::ofstream out(path);
+        out << "menu_combo=either\n";
+    }
+    SpartanSettings::Load();
+    assert(v.menu_combo == 2);
+    SpartanSettings::Save();
+    const std::string combo = Read(path);
+    assert(combo.find("menu_combo=either\n") != std::string::npos);
+    assert(combo.find("(in-game menu: Insert / R3+L2 or Select+Start)") != std::string::npos);
+    {
+        std::ofstream out(path);
+        out << "menu_combo=start\n";
+    }
+    SpartanSettings::Load();
+    assert(v.menu_combo == 0);
+    _putenv_s("SPARTAN_MENU_COMBO", "select_start");  // the environment wins at start
+    SpartanSettings::Load();
+    assert(v.menu_combo == 1);
+    _putenv_s("SPARTAN_MENU_COMBO", "");
+    v.menu_combo = 0;
     std::remove(path);
     std::puts("PASS: graphics settings");
 }

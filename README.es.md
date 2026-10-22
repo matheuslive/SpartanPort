@@ -91,7 +91,10 @@ resolución reemplaza la corrección de texturas.
 **Mientras jugás**
 
 - **Insert** en el teclado, o **R3 + L2** en el control, abre el menú del port: trucos,
-  multiplicadores, imagen, rendimiento y el overlay de rendimiento.
+  multiplicadores, imagen, rendimiento y el overlay de rendimiento. **Menu shortcut** (pestaña Game,
+  o `menu_combo` en spartanport.ini) lo cambia a **Select + Start** (Back/View/Share + Start/Menu/Options),
+  o acepta los dos. Con Select + Start activo, Start o Select pulsado solo llega al juego 0,1 s
+  después, para que el primero de los dos no abra el menú de pausa del juego.
 - Los shaders guardados se cargan en segundo plano. Una pequeña nota "Loading shader cache" en la
   esquina muestra el progreso.
 
@@ -175,7 +178,7 @@ La corrupción gráfica en Steam Deck/RADV es un problema conocido del AppImage 
   y copias de las partidas, parches,
   mods (orden, presets y conflictos), controles con íconos de botones de PlayStation o Xbox,
   actualizaciones y diagnóstico.
-- **Menú dentro del juego** (Insert en el teclado, R3+L2 en el control), con cuatro pestañas:
+- **Menú dentro del juego** (Insert en el teclado, R3+L2 o Select+Start en el control), con cuatro pestañas:
   - **Game:** trucos (vida infinita, magia, medidor de objeto, Furia de Esparta, máximo de orbes
     rojos, QTE automático: los avisos de botón y de giro del stick se resuelven solos); multiplicadores de 0,1x a 100x para los orbes rojos, verdes (vida), azules (magia) y
     dorados (Furia de Esparta) y para el daño causado y recibido; una barra de vida de enemigos.
@@ -251,7 +254,7 @@ Valores por defecto; cambialos en la página **Controls** del launcher, sección
 | Tab | Options |
 | P | clic del touchpad izquierdo (modo foto) |
 | Esc | clic del touchpad derecho (menú de pausa) |
-| Insert | el menú del port (R3+L2 en el control) |
+| Insert | el menú del port (R3+L2 o Select+Start en el control, ver Menu shortcut) |
 
 **Rage of Sparta en una tecla** (activado por defecto) deja Z y X sin uso. Los **Joystick prompts**
 responden a los quick-time events de girar el stick sin stick: escribí el giro (medias vueltas D S

@@ -967,6 +967,10 @@ EXTRA = {
         'Joystick prompts': 'Prompts do analógico',
         'Keep the mouse in the game window': 'Manter o mouse na janela do jogo',
         'Show the mouse cursor': 'Mostrar o cursor do mouse',
+        'Menu shortcut': 'Atalho do menu',
+        'Either': 'Qualquer um',
+        "Gamepad buttons that open the port's menu in the game (Insert on the keyboard always does). With Select+Start, Start or Select pressed alone reaches the game 0.1 s later. Also in the in-game menu.":
+            'Botões do controle que abrem o menu do port no jogo (o Insert no teclado sempre abre). Com Select+Start, Start ou Select apertado sozinho chega ao jogo 0,1 s depois. Também no menu do jogo.',
         "The system cursor stays visible while you play. With the mouse kept in the game window it stops at the window's edges, and so does aiming with the mouse while L2 is held. Also in the in-game menu.":
             'O cursor do sistema fica visível enquanto você joga. Com o mouse mantido na janela do jogo, ele para nas bordas da janela, e a mira com o mouse segurando L2 também. Também no menu do jogo.',
         'Key not supported': 'Tecla não suportada',
@@ -1237,6 +1241,10 @@ EXTRA = {
         'Joystick prompts': 'Eventos del stick',
         'Keep the mouse in the game window': 'Mantener el ratón en la ventana del juego',
         'Show the mouse cursor': 'Mostrar el cursor del ratón',
+        'Menu shortcut': 'Atajo del menú',
+        'Either': 'Cualquiera',
+        "Gamepad buttons that open the port's menu in the game (Insert on the keyboard always does). With Select+Start, Start or Select pressed alone reaches the game 0.1 s later. Also in the in-game menu.":
+            'Botones del mando que abren el menú del port en el juego (Insert en el teclado siempre lo abre). Con Select+Start, Start o Select pulsado solo llega al juego 0,1 s después. También en el menú del juego.',
         "The system cursor stays visible while you play. With the mouse kept in the game window it stops at the window's edges, and so does aiming with the mouse while L2 is held. Also in the in-game menu.":
             'El cursor del sistema sigue visible mientras juegas. Con el ratón mantenido en la ventana del juego, se detiene en los bordes de la ventana, y la puntería con el ratón manteniendo L2 también. También en el menú del juego.',
         'Key not supported': 'Tecla no compatible',

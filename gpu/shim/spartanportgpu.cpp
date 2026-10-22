@@ -376,6 +376,10 @@ extern "C" int spartanportgpu_mouse_aim_sensitivity(void) {
     return SpartanSettings::Get().mouse_aim_sensitivity.load(std::memory_order_relaxed);
 }
 
+extern "C" int spartanportgpu_menu_combo(void) {
+    return SpartanSettings::Get().menu_combo.load(std::memory_order_relaxed);
+}
+
 // The menu's Automatic QTE switch, read by the game's code through the QTE stubs (src/qte_hook.h).
 extern "C" uintptr_t spartanport_auto_qte_flag(void) {
     static_assert(sizeof(std::atomic<bool>) == 1, "the stubs compare one byte");

@@ -11,6 +11,7 @@
 #define _GNU_SOURCE
 #include "runtime.h"
 #include "gpu/spartanportgpu.h"
+#include "gpu/shim/spartanport_menu_combo.h"
 #include "qte_hook.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -460,12 +461,24 @@ static void sample_host(PadData *d) {
     d->timestamp=now_us();
     SDL_Gamepad *g=current_gamepad();
     watch_wheel();
-    if (spartanportgpu_overlay_captures_input()) { drop_wheel(); return; } /* settings menu open: neutral input */
+    static SpartanComboFilter menu_combo;
+    if (spartanportgpu_overlay_captures_input()) { /* settings menu open: neutral input */
+        drop_wheel(); spartan_combo_filter_capture(&menu_combo); return;
+    }
     const bool *k=SDL_WasInit(SDL_INIT_VIDEO) ? SDL_GetKeyboardState(NULL) : NULL;
     load_button_maps();
     if (g) {
-        for (size_t i=0;i<pad_map.count;++i)
-            if (SDL_GetGamepadButton(g,(SDL_GamepadButton)pad_map.entries[i].source)) d->buttons|=pad_map.entries[i].ps;
+        /* Back and Start as the game sees them: held back while they may still become the menu's
+         * Select+Start (spartanport_menu_combo.h). */
+        const bool held[2]={SDL_GetGamepadButton(g,SDL_GAMEPAD_BUTTON_BACK),SDL_GetGamepadButton(g,SDL_GAMEPAD_BUTTON_START)};
+        bool shown[2];
+        spartan_combo_filter(&menu_combo,spartan_menu_combo_select_start(spartanportgpu_menu_combo()),held,d->timestamp,shown);
+        for (size_t i=0;i<pad_map.count;++i) {
+            const int source=pad_map.entries[i].source;
+            const bool down=source==SDL_GAMEPAD_BUTTON_BACK ? shown[0] : source==SDL_GAMEPAD_BUTTON_START ? shown[1]
+                           : SDL_GetGamepadButton(g,(SDL_GamepadButton)source);
+            if (down) d->buttons|=pad_map.entries[i].ps;
+        }
         const uint32_t mapped=d->buttons;
         d->left_x=axis(SDL_GetGamepadAxis(g,SDL_GAMEPAD_AXIS_LEFTX)); d->left_y=axis(SDL_GetGamepadAxis(g,SDL_GAMEPAD_AXIS_LEFTY));
         d->right_x=axis(SDL_GetGamepadAxis(g,SDL_GAMEPAD_AXIS_RIGHTX)); d->right_y=axis(SDL_GetGamepadAxis(g,SDL_GAMEPAD_AXIS_RIGHTY));

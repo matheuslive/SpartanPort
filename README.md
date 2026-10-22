@@ -86,7 +86,10 @@ patches apply only where their signatures match. A resolution patch replaces the
 **While playing**
 
 - **Insert** on the keyboard, or **R3 + L2** on the controller, opens the port's menu: cheats,
-  multipliers, image, performance and the performance overlay.
+  multipliers, image, performance and the performance overlay. **Menu shortcut** (Game tab, or
+  `menu_combo` in spartanport.ini) can make it **Select + Start** (Back/View/Share + Start/Menu/Options)
+  instead, or either one. With Select + Start on, Start or Select pressed alone reaches the game
+  0.1 s later, so the first of the two does not open the game's pause menu.
 - Saved shaders load in the background. A small "Loading shader cache" note in the corner shows
   the progress.
 
@@ -169,7 +172,7 @@ Steam Deck/RADV rendering corruption is a known issue in the published 2.2.0 App
   quick settings on the home page, graphics,
   performance, game folder and save backups, patches, mods (order, presets and conflicts),
   controls with PlayStation or Xbox button icons, updates and diagnostics.
-- **In-game menu** (Insert on the keyboard, R3+L2 on the controller), with four tabs:
+- **In-game menu** (Insert on the keyboard, R3+L2 or Select+Start on the controller), with four tabs:
   - **Game:** cheats (infinite health, magic, item meter, Rage of Sparta, max red orbs,
     automatic QTE: button and stick-rotation prompts answer themselves);
     multipliers from 0.1x to 100x for red, green (health), blue (magic) and gold (Rage of
@@ -252,7 +255,7 @@ Defaults; change them on the launcher's **Controls** page, under **Keyboard & Mo
 | Tab | Options |
 | P | left touchpad click (photo mode) |
 | Esc | right touchpad click (pause menu) |
-| Insert | the port's menu (R3+L2 on the controller) |
+| Insert | the port's menu (R3+L2 or Select+Start on the controller, see Menu shortcut) |
 
 **Rage of Sparta on one input** (on by default) leaves Z and X unused. **Joystick prompts** answer
 the stick-rotation quick-time events without a stick: type the turn (half turns D S A, A S D, A W D

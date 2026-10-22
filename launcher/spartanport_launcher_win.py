@@ -392,7 +392,7 @@ def heading_font(size, fallback=None, every_language=False):
 
 INI_FLAGS = {'cheat_double_jumps', 'cheat_very_hard', 'object_motion', 'show_fps', 'vsync', 'async_shaders', 'deferred_readback',
              'stale_readback'}
-# The graphics keys are also in the in-game menu (Insert / R3+L2); run.py reads the startup ones.
+# The graphics keys are also in the in-game menu (Insert / gamepad shortcut); run.py reads the startup ones.
 INI_DEFAULTS = {'upscaler': 'fsr3', 'preset': '1',
                 'object_motion': '1', 'show_fps': '1', 'output_res': '1920x1080',
                 'live_resolution': 'auto', 'display_mode': 'windowed', 'vsync': '1', 'fps_limit': '0',
@@ -400,7 +400,8 @@ INI_DEFAULTS = {'upscaler': 'fsr3', 'preset': '1',
                 'render_resolution': 'native', 'engine_fps': '120',
                 'frames_queued': '1', 'cheat_very_hard': '0', 'cheat_double_jumps': '0',
                 'anisotropy': '0', 'vibration': '100', 'mouse_prompt_distance': '48', 'mouse_lock': '1',
-                'show_cursor': '0', 'mouse_aim_style': '0', 'mouse_aim_sensitivity': '100'}
+                'show_cursor': '0', 'mouse_aim_style': '0', 'mouse_aim_sensitivity': '100',
+                'menu_combo': 'r3_l2'}
 DISPLAY_MODES = [('windowed', ('Windowed',)), ('borderless', ('Borderless',)), ('fullscreen', ('Fullscreen',))]
 ANISOTROPY = [('0', ('Game default',)), ('2', ('2x',)), ('4', ('4x',)), ('8', ('8x',)), ('16', ('16x',))]
 FPS_LIMITS = [('30', ('30',)), ('60', ('60',)), ('100', ('100',)), ('120', ('120',)), ('144', ('144',)), ('180', ('180',)), ('240', ('240',)), ('0', ('Unlimited',))]
@@ -481,6 +482,9 @@ def connected_gamepad():
 STICK_PROMPTS = [('keyboard', ('Keyboard (native)',)), ('mouse', ('Adaptive mouse (experimental)',))]
 # L2 aim with the mouse (Head of Helios, Bow of Apollo): spartanport.ini mouse_aim_style.
 AIM_STYLES = [('0', ('Relative',)), ('1', ('Absolute',))]
+# The gamepad shortcut of the in-game menu (spartanport.ini menu_combo); texts naming R3+L2 follow it.
+MENU_COMBOS = [('r3_l2', ('R3+L2',)), ('select_start', ('Select+Start',)), ('either', ('Either',))]
+MENU_COMBO_TEXT = {'r3_l2': 'R3+L2', 'select_start': 'Select+Start', 'either': 'R3+L2 / Select+Start'}
 GLYPH_STYLES = [('off', ('Original (default)',)), ('auto', ('Match my controller',)), ('xbox', ('Xbox',)),
                 ('nintendo', ('Nintendo',)), ('keyboard', ('Keyboard',))]
 
@@ -786,7 +790,8 @@ def save_ini(values, lines):
                 continue
         out.append(line)
     if not lines:
-        out.append('# spartanport settings (in-game menu: Insert / R3+L2)')
+        out.append('# spartanport settings (in-game menu: Insert / {})'.format(
+            MENU_COMBO_TEXT.get(values.get('menu_combo'), 'R3+L2')))
     out += [f'{key}={value}' for key, value in values.items() if key not in written]
     atomic_write(ini_path(), '\n'.join(out) + '\n')
 
@@ -1555,8 +1560,13 @@ class Launcher:
         return self.row(parent, title, box, hint, restart)
 
     def note(self, parent, text, top=12):
-        self.ttk.Label(parent, text=text, style='Muted.TLabel', wraplength=self.px(680), justify='left').grid(
-            row=self.next_row(parent), column=0, columnspan=2, sticky='w', pady=self.px((top, 0)))
+        label = self.ttk.Label(parent, text=text, style='Muted.TLabel', wraplength=self.px(680), justify='left')
+        label.grid(row=self.next_row(parent), column=0, columnspan=2, sticky='w', pady=self.px((top, 0)))
+        return label
+
+    def menu_shortcut_text(self, text):
+        """A translated text naming R3+L2, with the gamepad shortcut chosen for the in-game menu instead."""
+        return text.replace('R3+L2', MENU_COMBO_TEXT.get(self.var('menu_combo', 'ini').get(), 'R3+L2'))
 
     def section(self, parent, title, top=20):
         """A section heading with a line under it."""
@@ -1636,9 +1646,11 @@ class Launcher:
             self.nav[name] = item
         tk.Frame(side, bg=BG).pack(fill='both', expand=True)
         self.update_box = None
-        self.side_note = tk.Label(side, text=_('In the game: Insert or R3+L2\nopens the port\'s menu.',
-                                               'В игре: Insert или R3+L2\nоткрывает меню порта.'),
+        side_text = lambda: self.menu_shortcut_text(_('In the game: Insert or R3+L2\nopens the port\'s menu.',
+                                            'В игре: Insert или R3+L2\nоткрывает меню порта.'))
+        self.side_note = tk.Label(side, text=side_text(),
                                   bg=BG, fg=MUTED, font=self.font(UI_FONT, 9), justify='left', wraplength=self.px(210))
+        self.var('menu_combo', 'ini').trace_add('write', lambda *_a: self.side_note.configure(text=side_text()))
         self.side_note.pack(anchor='w', padx=self.px(22), pady=self.px((0, 4)))
         tk.Label(side, text=f'v{VERSION}', bg=BG, fg=MUTED, font=self.font(UI_FONT, 9)).pack(anchor='w', padx=self.px(22), pady=self.px((0, 18)))
 
@@ -1819,7 +1831,7 @@ class Launcher:
                  restart=True)
         self.section(f, _('Overlay'))
         self.check(f, 'show_fps', 'ini', _('Show performance overlay'),
-                   _('Items, size and corner: in-game menu (Insert / R3+L2) > Overlay.'))
+                   self.menu_shortcut_text(_('Items, size and corner: in-game menu (Insert / R3+L2) > Overlay.')))
         self.section(f, _('Screenshots'))
         shots = self.ttk.Button(f, text=_('Open the screenshots folder'),
                            command=lambda: self.open_path(
@@ -2201,6 +2213,10 @@ class Launcher:
                             command=self.relabel_pad_controls).pack(side='left', padx=self.px((0, 14)))
         self.row(f, _('Controller type'), names)
         self.row(f, _('Vibration'), slider('vibration', 0, 100, '%', f), _("Strength of the gamepad's vibration; 0% turns it off."))
+        self.row(f, _('Menu shortcut'), self.choice(f, 'menu_combo', 'ini', MENU_COMBOS),
+                 _("Gamepad buttons that open the port's menu in the game (Insert on the keyboard always does). "
+                   'With Select+Start, Start or Select pressed alone reaches the game 0.1 s later. Also in the '
+                   'in-game menu.'))
         table = mapping_table(f)
         for r, (button, _key, pad) in enumerate(CONTROLS, start=1):
             game_button(table, r, button)
@@ -2226,9 +2242,11 @@ class Launcher:
                 box = ttk.Label(table, text=fixed, style='Muted.TLabel')
             box.grid(row=r, column=3, sticky='w')
             self.draw_pad_icon(button)
-        self.note(f, _('L2/R2 stay on the triggers. Touchpad right opens the game\'s pause menu; Touchpad left '
-                       '(photo mode) is L1 + Touchpad right. R3+L2 always opens the port\'s menu. '
-                       'Applied when the game starts.'))
+        pad_text = lambda: self.menu_shortcut_text(_('L2/R2 stay on the triggers. Touchpad right opens the game\'s pause menu; '
+                                           'Touchpad left (photo mode) is L1 + Touchpad right. R3+L2 always opens '
+                                           'the port\'s menu. Applied when the game starts.'))
+        pad_note = self.note(f, pad_text())
+        self.var('menu_combo', 'ini').trace_add('write', lambda *_a: pad_note.configure(text=pad_text()))
         ttk.Button(f, text=_('Reset gamepad to defaults'), command=lambda: self.reset_controls('pad')).grid(
             row=self.next_row(f), column=0, sticky='w', pady=self.px((14, 0)))
         self.show_device(fit=False)

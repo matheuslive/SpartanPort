@@ -18,6 +18,7 @@
 #include "spartanport_actors.h"
 #include "spartanport_graphics.h"
 #include "spartanport_perf_stats.h"
+#include "spartanport_menu_combo.h"
 #include "../../src/actor_hook.h"
 
 extern SpartanActorSlot spartanport_actor_slots[2];
@@ -63,7 +64,7 @@ namespace {
 std::mutex imgui_mutex; // the ImGui context: window thread (input) and present thread
 bool initialized = false;
 std::atomic<bool> menu_open{false};
-bool r3_down = false, l2_down = false;
+bool r3_down = false, l2_down = false, back_down = false, start_down = false;
 std::atomic<bool> loading{false};
 std::atomic<u32> loading_done{0}, loading_total{0};
 std::atomic<u32> background_done{0}, background_total{0};
@@ -193,6 +194,16 @@ static const char* PadText(const char* playstation, const char* xbox, const char
     static const char* style = std::getenv("SPARTAN_GLYPHS");
     if (!style) return playstation;
     return !std::strcmp(style, "xbox") ? xbox : !std::strcmp(style, "nintendo") ? nintendo : playstation;
+}
+
+// The gamepad shortcut that opens this menu (menu_combo), in the controller's names.
+static const char* MenuComboText(int combo) {
+    switch (combo) {
+    case SPARTAN_MENU_COMBO_SELECT_START: return PadText("Share+Options", "Back+Start", "Minus+Plus");
+    case SPARTAN_MENU_COMBO_EITHER:
+        return PadText("R3+L2 / Share+Options", "RS+LT / Back+Start", "RS+ZL / Minus+Plus");
+    default: return PadText("R3+L2", "RS+LT", "RS+ZL");
+    }
 }
 
 // The note for the item under the mouse or the gamepad/keyboard focus, shown in the footer.
@@ -352,6 +363,10 @@ void GameTab() {
         CheckRow("Show mouse cursor", s.show_cursor,
                  "The system cursor stays visible while you play. With Keep mouse in window on, it stops at "
                  "the window's edges, and so does the L2 aim with the mouse.");
+        static const char* const combos[] = {"R3+L2", "Select+Start", "Either"};
+        ChoiceRow("Menu shortcut", s.menu_combo, combos, nullptr, 3,
+                  "Controller buttons that open this menu (Insert on the keyboard always does). With "
+                  "Select+Start, Start or Select pressed alone reaches the game 0.1 s later.");
         ImGui::EndTable();
     }
 
@@ -599,11 +614,14 @@ void Menu() {
                                     std::min(680.0f * base_scale, viewport->WorkSize.y * 0.9f)),
                              ImGuiCond_Appearing);
     bool keep_open = true;
-    // spartanport: the game's own title (param.sfo), not a fixed one.
-    static const std::string heading = [] {
-        const std::string_view title = Common::ElfInfo::Instance().Title();
-        return std::string(title.empty() ? "SpartanPort" : title) + PadText("  (Insert / R3+L2)", "  (Insert / RS+LT)", "  (Insert / RS+ZL)");
+    // spartanport: the game's own title (param.sfo), not a fixed one, and the shortcut chosen in the
+    // menu. ### keeps the window's ID when the shortcut changes.
+    static const std::string title = [] {
+        const std::string_view name = Common::ElfInfo::Instance().Title();
+        return std::string(name.empty() ? "SpartanPort" : name);
     }();
+    const std::string heading =
+        title + "  (Insert / " + MenuComboText(s.menu_combo) + ")###SpartanPortMenu";
     if (!ImGui::Begin(heading.c_str(), &keep_open, ImGuiWindowFlags_NoCollapse)) {
         ImGui::End();
         return;
@@ -976,7 +994,8 @@ void Init(const Vulkan::Instance& instance, vk::Format format, u32 image_count) 
     }
     overlay_instance = &instance;
     initialized = true;
-    std::printf("Overlay: menu ready (Insert or R3+L2)\n");
+    std::printf("Overlay: menu ready (Insert or %s)\n",
+                SpartanSettings::MenuComboLabel(SpartanSettings::Get().menu_combo));
 }
 
 void UpdateTextInput(SDL_Window* window) {
@@ -1118,10 +1137,20 @@ bool HandleEvent(const SDL_Event& event) {
     case SDL_EVENT_GAMEPAD_BUTTON_UP: {
         const bool down = event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN;
         const u8 button = event.gbutton.button;
+        const int combo = SpartanSettings::Get().menu_combo;
         // R3+L2 opens the menu: L3+R3 is a game action.
         if (button == SDL_GAMEPAD_BUTTON_RIGHT_STICK) {
             r3_down = down;
-            if (down && l2_down) {
+            if (down && l2_down && spartan_menu_combo_r3_l2(combo)) {
+                SetOpen(!is_open);
+                return true;
+            }
+        }
+        // Select+Start (menu_combo): opens the moment the second one goes down. runtime_pad.c keeps
+        // the first one from the game meanwhile.
+        if (button == SDL_GAMEPAD_BUTTON_BACK || button == SDL_GAMEPAD_BUTTON_START) {
+            (button == SDL_GAMEPAD_BUTTON_BACK ? back_down : start_down) = down;
+            if (down && back_down && start_down && spartan_menu_combo_select_start(combo)) {
                 SetOpen(!is_open);
                 return true;
             }
@@ -1137,7 +1166,7 @@ bool HandleEvent(const SDL_Event& event) {
     case SDL_EVENT_GAMEPAD_AXIS_MOTION: {
         if (event.gaxis.axis == SDL_GAMEPAD_AXIS_LEFT_TRIGGER) {
             const bool down = event.gaxis.value > 16000;
-            if (down && !l2_down && r3_down) {
+            if (down && !l2_down && r3_down && spartan_menu_combo_r3_l2(SpartanSettings::Get().menu_combo)) {
                 l2_down = true;
                 SetOpen(!is_open);
                 return true;

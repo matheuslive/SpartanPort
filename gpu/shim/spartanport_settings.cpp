@@ -129,6 +129,8 @@ void Set(Values& v, const std::string& key, const std::string& value) {
         v.mouse_lock = value.empty() || i != 0;
     } else if (key == "show_cursor") {
         v.show_cursor = i != 0;
+    } else if (key == "menu_combo") {
+        v.menu_combo = ParseMenuCombo(value);
     } else if (key == "mouse_aim_style") {
         v.mouse_aim_style = std::clamp(i, 0, 1);
     } else if (key == "mouse_aim_sensitivity") {
@@ -206,7 +208,7 @@ void Load() {
         {"SPARTAN_RCAS", "rcas"},                        {"SPARTAN_FRAMES_AHEAD", "frames_queued"},
         {"SPARTAN_ANISOTROPY", "anisotropy"},            {"SPARTAN_VIBRATION", "vibration"},
         {"SPARTAN_MOUSE_PROMPT_DISTANCE", "mouse_prompt_distance"}, {"SPARTAN_MOUSE_LOCK", "mouse_lock"},
-        {"SPARTAN_SHOW_CURSOR", "show_cursor"},
+        {"SPARTAN_SHOW_CURSOR", "show_cursor"},         {"SPARTAN_MENU_COMBO", "menu_combo"},
         {"SPARTAN_MOUSE_AIM_STYLE", "mouse_aim_style"}, {"SPARTAN_MOUSE_AIM_SENSITIVITY", "mouse_aim_sensitivity"},
         {"SPARTAN_AUTO_QTE", "auto_qte"},
     };
@@ -328,11 +330,11 @@ void Save() {
         return;
     }
     std::fprintf(file,
-                 "# spartanport settings (in-game menu: Insert / R3+L2)\n"
+                 "# spartanport settings (in-game menu: Insert / %s)\n"
                  "upscaler=%s\npreset=%d\nsharpen=%d\nsharpness=%.2f\njitter=%d\n"
                  "reactive=%d\nobject_motion=%d\nreactive_scale=%.2f\nreactive_threshold=%.2f\nreactive_max=%.2f\n"
                  "debug_view=%d\nshow_fps=%d\nfsr4_auto_exposure=%d\nfsr4_invert_jitter=%d\n",
-                 UpscalerName(v.upscaler), v.preset.load(), int(v.sharpen.load()),
+                 MenuComboLabel(v.menu_combo), UpscalerName(v.upscaler), v.preset.load(), int(v.sharpen.load()),
                  v.sharpness.load(), int(v.jitter.load()), int(v.reactive.load()),
                  int(v.object_motion.load()),
                  v.reactive_scale.load(), v.reactive_threshold.load(), v.reactive_max.load(),
@@ -373,9 +375,10 @@ void Save() {
                  v.engine_fps.load(), int(v.deferred_readback.load()), int(v.stale_readback.load()),
                  int(v.restart_unconfirmed.load()));
     std::fprintf(file, "anisotropy=%d\nvibration=%d\nmouse_prompt_distance=%d\nmouse_lock=%d\nshow_cursor=%d\n"
-                       "mouse_aim_style=%d\nmouse_aim_sensitivity=%d\n",
+                       "mouse_aim_style=%d\nmouse_aim_sensitivity=%d\nmenu_combo=%s\n",
                  v.anisotropy.load(), v.vibration.load(), v.mouse_prompt_distance.load(), int(v.mouse_lock.load()),
-                 int(v.show_cursor.load()), v.mouse_aim_style.load(), v.mouse_aim_sensitivity.load());
+                 int(v.show_cursor.load()), v.mouse_aim_style.load(), v.mouse_aim_sensitivity.load(),
+                 MenuComboName(v.menu_combo));
     // Read by run.sh at start.
     std::fprintf(file, "live_resolution=%s\n", v.live_resolution < 0 ? "auto"
                                                   : v.live_resolution ? "1" : "0");
@@ -391,6 +394,25 @@ const char* PresetName(int preset) {
     static constexpr const char* names[PresetCount] = {"Native AA", "Quality", "Balanced",
                                                        "Performance", "Ultra Performance"};
     return names[std::clamp(preset, 0, PresetCount - 1)];
+}
+
+const char* MenuComboName(int combo) {
+    static constexpr const char* names[] = {"r3_l2", "select_start", "either"};
+    return names[std::clamp(combo, 0, 2)];
+}
+
+int ParseMenuCombo(const std::string& value) {
+    for (int combo = 0; combo < 3; ++combo) {
+        if (value == MenuComboName(combo)) {
+            return combo;
+        }
+    }
+    return 0; // unknown or empty: R3+L2, the default
+}
+
+const char* MenuComboLabel(int combo) {
+    static constexpr const char* labels[] = {"R3+L2", "Select+Start", "R3+L2 or Select+Start"};
+    return labels[std::clamp(combo, 0, 2)];
 }
 
 const char* UpscalerName(int upscaler) {

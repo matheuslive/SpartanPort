@@ -88,7 +88,10 @@ substitui a correção de texturas.
 **Durante o jogo**
 
 - **Insert** no teclado, ou **R3 + L2** no controle, abre o menu do port: trapaças,
-  multiplicadores, imagem, desempenho e o contador de desempenho.
+  multiplicadores, imagem, desempenho e o contador de desempenho. O **Menu shortcut** (aba Game,
+  ou `menu_combo` no spartanport.ini) troca por **Select + Start** (Back/View/Share + Start/Menu/Options),
+  ou aceita os dois. Com Select + Start ligado, Start ou Select apertado sozinho chega ao jogo
+  0,1 s depois, para o primeiro dos dois não abrir o menu de pausa do jogo.
 - Os shaders salvos carregam em segundo plano. Um aviso pequeno "Loading shader cache" no canto
   mostra o progresso.
 
@@ -171,7 +174,7 @@ A corrupção gráfica no Steam Deck/RADV é um problema conhecido do AppImage 2
   controles com ícones de botões PlayStation ou Xbox, atualizações e diagnóstico.
 - **Ícones de botões no jogo** (opt-in, desligado por padrão): os ícones PlayStation do jogo podem
   ser os do seu controle, Xbox ou Nintendo, ou as teclas do teclado com que você joga (tela Game, seção Controls).
-- **Menu dentro do jogo** (Insert no teclado, R3+L2 no controle), com quatro abas:
+- **Menu dentro do jogo** (Insert no teclado, R3+L2 ou Select+Start no controle), com quatro abas:
   - **Game:** trapaças (vida, magia, item e Fúria de Esparta infinitos, orbes vermelhos no
     máximo, QTE automático: prompts de botão e de giro do analógico se resolvem sozinhos); multiplicadores de 0,1x a 100x para orbes vermelhos, verdes (vida), azuis (magia)
     e dourados (Fúria de Esparta) e para dano causado e recebido; barra de vida do inimigo.
@@ -247,7 +250,7 @@ Padrão; mude na tela **Controls** do launcher, seção **Keyboard & Mouse Mappi
 | Tab | Options |
 | P | clique esquerdo do touchpad (modo foto) |
 | Esc | clique direito do touchpad (menu de pausa) |
-| Insert | menu do port (R3+L2 no controle) |
+| Insert | menu do port (R3+L2 ou Select+Start no controle, ver Menu shortcut) |
 
 **Rage of Sparta em uma tecla** (ligado por padrão) deixa Z e X sem uso. Os **Joystick prompts**
 respondem aos eventos rápidos de girar o analógico sem analógico: digite o giro (meias-voltas D S A,

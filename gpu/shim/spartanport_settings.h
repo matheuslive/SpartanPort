@@ -9,6 +9,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <string>
 
 namespace SpartanSettings {
 
@@ -84,6 +85,8 @@ struct Values {
     /// The system cursor stays visible while playing; with mouse_lock it is confined to the window
     /// instead of relative mode (window.cpp). Live.
     std::atomic<bool> show_cursor{false};
+    /// Gamepad shortcut of this menu (spartanport_menu_combo.h): 0 R3+L2, 1 Select+Start, 2 either. Live.
+    std::atomic<int> menu_combo{0};
     /// L2 aim with the mouse (runtime_pad.c): 0 relative (follows movement), 1 absolute. Live.
     std::atomic<int> mouse_aim_style{0};
     /// L2 aim sensitivity in percent, 10 to 200: lower needs more mouse for the same stick. Live.
@@ -159,5 +162,10 @@ void Save();
 float PresetScale(int preset);
 const char* PresetName(int preset);
 const char* UpscalerName(int upscaler);
+/// menu_combo in spartanport.ini: "r3_l2", "select_start" or "either".
+const char* MenuComboName(int combo);
+int ParseMenuCombo(const std::string& value);
+/// The gamepad shortcut in words for the ini and the log: "R3+L2", "Select+Start" or both.
+const char* MenuComboLabel(int combo);
 
 } // namespace SpartanSettings

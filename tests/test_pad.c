@@ -17,6 +17,7 @@ int spartanportgpu_mouse_prompt_distance(void) { return 48; }
 void spartanportgpu_mouse_pause_key(void) {}
 int spartanportgpu_mouse_aim_style(void) { return 0; }
 int spartanportgpu_mouse_aim_sensitivity(void) { return 100; }
+int spartanportgpu_menu_combo(void) { return 0; }
 
 static bool SDLCALL record_rumble(void *userdata, uint16_t low, uint16_t high) {
     (void)userdata;
